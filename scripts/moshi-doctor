@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# tmux-moshi: health check. Diagnoses why the indicator or toggle might not work —
+# tmux version, plugin load, status-line wiring, external deps, and live state.
+# Run it directly (`scripts/moshi-doctor`) or from the indicator's right-click menu.
+#
+# Exit status: 1 if there is a hard failure (no/old tmux, plugin not loaded), else
+# 0. A stopped daemon or unpaired state are notes, not failures — "off" is valid.
+opt() { tmux show-option -gqv "$1"; }
+
+fails=0
+ok()   { printf 'ok   - %s\n' "$1"; }
+warn() { printf 'warn - %s\n' "$1"; }
+note() { printf 'note - %s\n' "$1"; }
+bad()  { printf 'FAIL - %s\n' "$1"; fails=$((fails + 1)); }
+
+# 1. tmux present and new enough for range=user / mouse_status_range (>= 3.0).
+if ! command -v tmux >/dev/null 2>&1; then
+	bad "tmux is not on PATH"
+else
+	ver="$(tmux -V | sed 's/^tmux //')"
+	major="${ver%%.*}"
+	rest="${ver#*.}"
+	minor="${rest%%[!0-9]*}"
+	if [ "${major:-0}" -gt 3 ] || { [ "${major:-0}" -eq 3 ] && [ "${minor:-0}" -ge 0 ]; }; then
+		ok "tmux ${ver} supports clickable status ranges (>= 3.0)"
+	else
+		bad "tmux ${ver} is too old; need >= 3.0 for range=user"
+	fi
+fi
+
+# The remaining checks read tmux options, so a server must be running.
+if ! tmux list-sessions >/dev/null 2>&1; then
+	bad "no tmux server running (start tmux, then re-run)"
+	printf '\n%s hard failure(s).\n' "$fails" >&2
+	exit 1
+fi
+
+# 2. Plugin loaded?
+if [ -n "$(opt @moshi_status)" ]; then
+	ok "plugin loaded (@moshi_status is exported)"
+else
+	bad "@moshi_status is empty — is tmux-moshi.tmux sourced?"
+fi
+
+# 3. Indicator wired into the status line?
+case "$(opt status-right):$(opt status-left)" in
+	*moshi*) ok "indicator is spliced into the status line" ;;
+	*) warn "no 'moshi' reference in status-left/right — add #{E:@moshi_status}" ;;
+esac
+
+# 4. Toggle command runner resolvable? (first word of the command line)
+toggle_cmd="$(opt @moshi_toggle_command)"; [ -n "$toggle_cmd" ] || toggle_cmd="fish -l -c 'moshi-notify toggle'"
+toggle_runner="${toggle_cmd%% *}"
+if command -v "$toggle_runner" >/dev/null 2>&1; then
+	ok "toggle command runner '$toggle_runner' is available"
+else
+	warn "toggle command runner '$toggle_runner' not found (set @moshi_toggle_command)"
+fi
+
+# 5. Pairing-probe command runner resolvable?
+pair_cmd="$(opt @moshi_pair_check_command)"; [ -n "$pair_cmd" ] || pair_cmd="moshi-hook status"
+pair_runner="${pair_cmd%% *}"
+if command -v "$pair_runner" >/dev/null 2>&1; then
+	ok "pairing-probe command '$pair_runner' is available"
+else
+	warn "pairing-probe command '$pair_runner' not found (set @moshi_pair_check_command)"
+fi
+
+# 6. Live state (a stopped/unpaired daemon is a note, not a failure).
+match="$(opt @moshi_daemon_match)"; [ -n "$match" ] || match="moshi-hook serve"
+if pgrep -f "$match" >/dev/null 2>&1; then
+	if [ "$(opt @moshi_paired)" = "yes" ]; then
+		ok "daemon is running and paired"
+	else
+		note "daemon is running but unpaired (no pushes will be delivered)"
+	fi
+else
+	note "daemon is stopped (notifications off)"
+fi
+
+if [ "$fails" -gt 0 ]; then
+	printf '\n%s hard failure(s).\n' "$fails" >&2
+	exit 1
+fi
+printf '\nall good.\n'
+exit 0

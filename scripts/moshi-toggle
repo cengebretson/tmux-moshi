@@ -19,6 +19,12 @@ tmux display-message "Moshi: toggling notifications..."
 # Flip the daemon. Output discarded so it never leaks into the focused pane.
 sh -c "$toggle_cmd" >/dev/null 2>&1
 
+# Refresh the cached pairing so the landed-state message is accurate. The default
+# fish helper already refreshes @moshi_paired, but a custom @moshi_toggle_command
+# might not, so do it here too (idempotent).
+script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+"$script_dir/moshi-seed-pairing" >/dev/null 2>&1 || true
+
 if ! pgrep -f "$match" >/dev/null 2>&1; then
 	tmux display-message -d 2500 "#[fg=${off}]${icon} Moshi notifications OFF"
 elif [ "$(opt @moshi_paired)" = "yes" ]; then

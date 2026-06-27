@@ -6,6 +6,28 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `scripts/moshi-doctor` — health check for tmux version, plugin load, status-line
+  wiring, external-command resolution, and live daemon/pairing state. Also the
+  *Status / doctor* item in the new right-click menu.
+- Right-click menu on the indicator (`MouseDown3Status`): toggle, refresh pairing,
+  or open the doctor. The right-click release is consumed too.
+- `@moshi_status_compact` — icon-only status variant (colour conveys state) for
+  narrow clients such as a phone bar.
+
+### Changed
+
+- `moshi-toggle` now refreshes the cached pairing (`@moshi_paired`) after flipping
+  the daemon, so the landed-state message is accurate even with a custom
+  `@moshi_toggle_command`.
+- CI pins ShellCheck to 0.11.0 (matching local) and lints `scripts/moshi-doctor`.
+
+### Fixed
+
+- CI ShellCheck failure (SC2015) from the `A && B || C` cleanup idiom in
+  `tests/check.sh`; rewritten as an explicit `if`.
+
 ## [0.1.0] - 2026-06-27
 
 ### Added

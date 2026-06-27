@@ -14,10 +14,13 @@ pairing seed, mouse handling), and configuration.
   `@moshi_status`).
 - `scripts/moshi-toggle` — flips the daemon, then reports the landed state.
 - `scripts/moshi-seed-pairing` — caches the pairing probe into `@moshi_paired`.
+- `scripts/moshi-doctor` — health check (tmux version, plugin load, status-line
+  wiring, external deps, live state); also the right-click menu's doctor item.
 
-All scripts use `#!/usr/bin/env bash`, read configuration from tmux options (with
-literal fallbacks), and always exit 0 so a failed probe never surfaces an error in
-the status line.
+All scripts use `#!/usr/bin/env bash` and read configuration from tmux options
+(with literal fallbacks). The indicator/toggle/seed scripts always exit 0 so a
+failed probe never surfaces an error in the status line; `moshi-doctor` is the
+exception — it exits non-zero on hard failures so it is scriptable.
 
 ## Tests
 

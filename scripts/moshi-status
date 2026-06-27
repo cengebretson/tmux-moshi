@@ -16,14 +16,21 @@ off="$(opt @moshi_color_off)";           [ -n "$off" ]      || off="#6c7086"
 unpaired="$(opt @moshi_color_unpaired)"; [ -n "$unpaired" ] || unpaired="#f9e2af"
 paired="$(opt @moshi_color_paired)";     [ -n "$paired" ]   || paired="#a6e3a1"
 
+# `--compact` drops the on/off text (the colour alone conveys state) for narrow
+# clients, e.g. the phone bar gated on @phone_max_cols.
+on_label=" on"; off_label=" off"
+case "${1:-}" in
+	--compact|compact) on_label=""; off_label="" ;;
+esac
+
 if ! pgrep -f "$match" >/dev/null 2>&1; then
-	printf '#[fg=%s]%s off' "$off" "$icon"
+	printf '#[fg=%s]%s%s' "$off" "$icon" "$off_label"
 	exit 0
 fi
 
 if [ "$(opt @moshi_paired)" = "yes" ]; then
-	printf '#[fg=%s]%s on' "$paired" "$icon"
+	printf '#[fg=%s]%s%s' "$paired" "$icon" "$on_label"
 else
-	printf '#[fg=%s]%s on' "$unpaired" "$icon"
+	printf '#[fg=%s]%s%s' "$unpaired" "$icon" "$on_label"
 fi
 exit 0

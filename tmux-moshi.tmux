@@ -37,6 +37,11 @@ range_name="$(tmux show-option -gqv @moshi_range_name)"
 tmux set-option -gq @moshi_status \
 	"#[range=user|${range_name}]#(${CURRENT_DIR}/scripts/moshi-status)#[norange]"
 
+# Compact variant (icon only — colour conveys state) for narrow clients, e.g. a
+# phone bar gated on @phone_max_cols. Splice with `#{E:@moshi_status_compact}`.
+tmux set-option -gq @moshi_status_compact \
+	"#[range=user|${range_name}]#(${CURRENT_DIR}/scripts/moshi-status --compact)#[norange]"
+
 # --- Seed cached pairing (backgrounded: the probe can touch the Keychain) ---
 tmux run-shell -b "${CURRENT_DIR}/scripts/moshi-seed-pairing"
 
@@ -49,9 +54,19 @@ fi
 # --- Mouse: click the indicator to toggle, and consume the button release so
 # it does not leak a stray click into the active pane (see README "Mouse"). ---
 if [ "$(tmux show-option -gqv @moshi_enable_mouse)" = "on" ]; then
+	# Left-click the indicator: toggle. Anything else on the status line keeps the
+	# default select-window behaviour.
 	tmux bind-key -n MouseDown1Status if-shell -F "#{==:#{mouse_status_range},${range_name}}" \
 		"run-shell -b '${CURRENT_DIR}/scripts/moshi-toggle'" \
 		"select-window -t="
+
+	# Right-click the indicator: a control menu (toggle / refresh pairing / doctor).
+	tmux bind-key -n MouseDown3Status if-shell -F "#{==:#{mouse_status_range},${range_name}}" \
+		"display-menu -T ' 󰄛 Moshi ' -x M -y M 'Toggle daemon' t 'run-shell -b \"${CURRENT_DIR}/scripts/moshi-toggle\"' 'Refresh pairing' r 'run-shell -b \"${CURRENT_DIR}/scripts/moshi-seed-pairing\"' '' 'Status / doctor' s 'display-popup -E \"${CURRENT_DIR}/scripts/moshi-doctor | less\"'"
+
+	# Consume the button releases so a click never leaks into the active pane.
 	tmux bind-key -n MouseUp1Status set-option -gq @moshi_mouse_noop 1
 	tmux bind-key -n MouseUp1StatusRight set-option -gq @moshi_mouse_noop 1
+	tmux bind-key -n MouseUp3Status set-option -gq @moshi_mouse_noop 1
+	tmux bind-key -n MouseUp3StatusRight set-option -gq @moshi_mouse_noop 1
 fi

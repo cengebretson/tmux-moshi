@@ -11,11 +11,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y tmux shellcheck
+      - name: Install tmux
+        run: sudo apt-get update && sudo apt-get install -y tmux
+
+      - name: Install shellcheck (pinned to match local)
+        run: |
+          SC_VER=v0.11.0
+          curl -sSL "https://github.com/koalaman/shellcheck/releases/download/${SC_VER}/shellcheck-${SC_VER}.linux.x86_64.tar.xz" | tar -xJ
+          sudo install "shellcheck-${SC_VER}/shellcheck" /usr/local/bin/shellcheck
+          shellcheck --version
 
       - name: Shellcheck
-        run: shellcheck scripts/moshi-status scripts/moshi-toggle scripts/moshi-seed-pairing tests/check.sh tmux-moshi.tmux
+        run: shellcheck scripts/moshi-status scripts/moshi-toggle scripts/moshi-seed-pairing scripts/moshi-doctor tests/check.sh tmux-moshi.tmux
 
       - name: Run tests
         run: tests/check.sh

@@ -1,5 +1,8 @@
 # tmux-moshi
 
+[![CI](https://github.com/cengebretson/tmux-moshi/actions/workflows/ci.yml/badge.svg)](https://github.com/cengebretson/tmux-moshi/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/cengebretson/tmux-moshi)](https://github.com/cengebretson/tmux-moshi/releases/latest)
+
 A tmux status-line indicator and one-key/one-click toggle for the
 [Moshi](https://getmoshi.app/) **agent-hook notification daemon** (`moshi-hook`),
 which pushes agent notifications to the [Moshi iOS terminal app](https://getmoshi.app/).
@@ -23,6 +26,12 @@ command's output into your active pane.
 - **Click-to-toggle**: the glyph is wrapped in a `range=user` region, so a
   left-click on it toggles too — and the button **release** is consumed so the
   click never leaks into the focused pane.
+- **Right-click menu**: right-click the glyph for a `display-menu` — toggle,
+  refresh pairing, or open the doctor.
+- **Compact mode**: `@moshi_status_compact` renders the glyph icon-only (colour
+  conveys state) for narrow clients like a phone bar.
+- **Doctor**: `scripts/moshi-doctor` diagnoses tmux version, plugin load,
+  status-line wiring, external deps, and live state.
 - **Cheap pairing**: the slow, Keychain-touching pairing probe runs once at load
   (backgrounded) into the cached `@moshi_paired` option; the per-redraw indicator
   only does an instant `pgrep`.
@@ -65,9 +74,10 @@ Set any of these before the plugin loads:
 | `@moshi_toggle_command` | `fish -l -c 'moshi-notify toggle'` | command that flips the daemon |
 | `@moshi_pair_check_command` | `moshi-hook status` | probed once at load; a line matching `^status:\s+paired` sets paired |
 | `@moshi_toggle_key` | `N` | prefix key to bind; empty string disables the binding |
-| `@moshi_enable_mouse` | `on` | bind click-to-toggle + release-consume |
+| `@moshi_enable_mouse` | `on` | bind left-click toggle, right-click menu, release-consume |
 | `@moshi_range_name` | `moshi` | the `range=user|X` name the click handler matches |
 | `@moshi_status` | *(exported)* | the format you splice into `status-right` |
+| `@moshi_status_compact` | *(exported)* | icon-only variant for narrow clients |
 
 The defaults assume Catppuccin Mocha hexes and a `moshi-notify` fish function; the
 options above let you retarget all of it.
@@ -105,6 +115,25 @@ If you bind those mouse keys yourself, set `@moshi_enable_mouse off` and wire th
 indicator click how you like (it just needs `mouse_status_range` == your
 `@moshi_range_name`).
 
+**Right-click** the indicator for a `display-menu`: *Toggle daemon*, *Refresh
+pairing*, and *Status / doctor* (opens `moshi-doctor` in a popup). The right-click
+release is consumed too (`MouseUp3Status` / `…StatusRight`).
+
+## Health check
+
+If the indicator or toggle isn't behaving, run the doctor:
+
+```bash
+scripts/moshi-doctor
+```
+
+It checks tmux's version (needs >= 3.0 for clickable ranges), that the plugin is
+loaded, that `#{E:@moshi_status}` is actually spliced into your status line, that
+your toggle/probe commands resolve, and the live daemon + pairing state. It exits
+non-zero only on hard failures (missing/old tmux, plugin not loaded) — a stopped or
+unpaired daemon is reported as a note. It's also the *Status / doctor* item in the
+right-click menu.
+
 ## Requirements
 
 This plugin is the tmux-side presentation layer for a personal Moshi setup. It does
@@ -129,7 +158,8 @@ option, so you can point the plugin at whatever your daemon and toggle command a
 ## Development
 
 ```bash
-tests/check.sh   # isolated tmux server; fakes the daemon + probe
+make test   # integration suite (isolated tmux server; fakes the daemon + probe)
+make lint   # shellcheck the scripts and entry
 ```
 
 See `CLAUDE.md` for versioning/release notes. Versions follow SemVer in `VERSION`;
