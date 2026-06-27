@@ -37,10 +37,18 @@ Changelog `CHANGELOG.md`.
 `## [Unreleased]` section of `CHANGELOG.md` in the same commit that makes the
 change.
 
-Cut a release by bumping `VERSION`, promoting + dating the `[Unreleased]` section,
-committing, and pushing a matching `v<x.y.z>` tag. The tag triggers
-`.github/workflows/release.yml`, which re-runs the checks, verifies the tag matches
-`VERSION`, and publishes a GitHub release from that version's changelog section.
+Cut a release with the `git release` helper (`~/.local/bin/git-release`, available
+machine-wide in any repo):
+
+```bash
+git release <x.y.z|major|minor|patch> --push
+```
+
+It bumps `VERSION`, promotes + dates the `[Unreleased]` section, runs
+`tests/check.sh`, commits, tags `v<x.y.z>`, and (with `--push`) pushes the branch +
+tag. The tag triggers `.github/workflows/release.yml`, which re-runs the checks,
+verifies the tag matches `VERSION`, and publishes a GitHub release from that
+version's changelog section. Use `git release <x.y.z> --dry-run` to preview first.
 
 ## Pre-commit
 
