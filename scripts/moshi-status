@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# tmux-moshi: emit the styled 3-state Moshi daemon indicator for the status line.
+#   dim   -> daemon stopped (off)
+#   amber -> running, not paired (on)
+#   green -> running and paired (on)
+#
+# Daemon up/down is checked with pgrep on every call (instant); pairing is read
+# from the cached @moshi_paired option (seeded by moshi-seed-pairing) so the slow
+# Keychain probe does not run on each status redraw. Always exits 0 so a failed
+# probe never surfaces an error in the status line.
+opt() { tmux show-option -gqv "$1"; }
+
+icon="$(opt @moshi_icon)";               [ -n "$icon" ]     || icon="󰄛"
+match="$(opt @moshi_daemon_match)";      [ -n "$match" ]    || match="moshi-hook serve"
+off="$(opt @moshi_color_off)";           [ -n "$off" ]      || off="#6c7086"
+unpaired="$(opt @moshi_color_unpaired)"; [ -n "$unpaired" ] || unpaired="#f9e2af"
+paired="$(opt @moshi_color_paired)";     [ -n "$paired" ]   || paired="#a6e3a1"
+
+if ! pgrep -f "$match" >/dev/null 2>&1; then
+	printf '#[fg=%s]%s off' "$off" "$icon"
+	exit 0
+fi
+
+if [ "$(opt @moshi_paired)" = "yes" ]; then
+	printf '#[fg=%s]%s on' "$paired" "$icon"
+else
+	printf '#[fg=%s]%s on' "$unpaired" "$icon"
+fi
+exit 0

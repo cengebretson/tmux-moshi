@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# tmux-moshi: probe Moshi pairing once and cache the result in @moshi_paired
+# (read by moshi-status). The probe can touch the Keychain and be slow, so the
+# plugin runs this backgrounded at load and after a toggle. Safe no-op when
+# moshi-hook is absent (the probe just fails and pairing reads "no"). Exits 0.
+opt() { tmux show-option -gqv "$1"; }
+
+check_cmd="$(opt @moshi_pair_check_command)"; [ -n "$check_cmd" ] || check_cmd="moshi-hook status"
+
+if sh -c "$check_cmd" 2>/dev/null | grep -qE '^status:[[:space:]]+paired'; then
+	tmux set-option -g @moshi_paired yes
+else
+	tmux set-option -g @moshi_paired no
+fi
+exit 0

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# tmux-moshi: toggle the Moshi daemon, then report the *landed* state on the tmux
+# status line. Invoked (backgrounded) by the prefix key and the status-bar click
+# (see tmux-moshi.tmux). The toggle command's own stdout/stderr is discarded so
+# brew / moshi-notify chatter never lands in the active pane. Always exits 0.
+opt() { tmux show-option -gqv "$1"; }
+
+toggle_cmd="$(opt @moshi_toggle_command)"; [ -n "$toggle_cmd" ] || toggle_cmd="fish -l -c 'moshi-notify toggle'"
+icon="$(opt @moshi_icon)";                 [ -n "$icon" ]       || icon="󰄛"
+match="$(opt @moshi_daemon_match)";        [ -n "$match" ]      || match="moshi-hook serve"
+off="$(opt @moshi_color_off)";             [ -n "$off" ]        || off="#6c7086"
+unpaired="$(opt @moshi_color_unpaired)";   [ -n "$unpaired" ]   || unpaired="#f9e2af"
+paired="$(opt @moshi_color_paired)";       [ -n "$paired" ]     || paired="#a6e3a1"
+
+# Immediate feedback — the toggle itself (e.g. `brew services`) can take a couple
+# of seconds; the landed-state message below replaces this.
+tmux display-message "Moshi: toggling notifications..."
+
+# Flip the daemon. Output discarded so it never leaks into the focused pane.
+sh -c "$toggle_cmd" >/dev/null 2>&1
+
+if ! pgrep -f "$match" >/dev/null 2>&1; then
+	tmux display-message -d 2500 "#[fg=${off}]${icon} Moshi notifications OFF"
+elif [ "$(opt @moshi_paired)" = "yes" ]; then
+	tmux display-message -d 2500 "#[fg=${paired}]${icon} Moshi notifications ON (paired)"
+else
+	tmux display-message -d 2500 "#[fg=${unpaired}]${icon} Moshi notifications ON (unpaired)"
+fi
+exit 0
