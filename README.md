@@ -72,6 +72,26 @@ Set any of these before the plugin loads:
 The defaults assume Catppuccin Mocha hexes and a `moshi-notify` fish function; the
 options above let you retarget all of it.
 
+### Overriding the toggle
+
+`@moshi_toggle_command` is run through `/bin/sh`, so it is any shell command line
+(not a tmux command). Set it above the plugin load line, or change it live — the
+toggle script re-reads the option on every invocation, so no reload is needed:
+
+```tmux
+# Drive the brew service directly, no fish required:
+set -g @moshi_toggle_command "sh -c 'pgrep -f \"moshi-hook serve\" >/dev/null && brew services stop moshi-hook || brew services start moshi-hook'"
+
+# ...or point it at your own script:
+set -g @moshi_toggle_command "~/bin/my-moshi-toggle"
+```
+
+The command only *flips* the daemon — the indicator reads state separately via
+`@moshi_daemon_match` (the `pgrep` check) and `@moshi_paired`. If you retarget the
+toggle to a different daemon, update `@moshi_daemon_match` to match, or the glyph
+won't reflect the new state. The command's output is discarded, so nothing it
+prints leaks into your active pane.
+
 ## Mouse
 
 The indicator's click fires the `Status` mouse key (because of the `range=user`
