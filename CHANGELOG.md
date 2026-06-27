@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-06-27
+
 ### Added
 
 - TPM plugin (`tmux-moshi.tmux`) that defines `@moshi_*` options, exports the
@@ -22,4 +24,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   server with a faked daemon process and pairing probe.
 - CI (ShellCheck + tests) and a tag-triggered release workflow.
 
-[Unreleased]: https://github.com/cengebretson/tmux-moshi/commits/main
+[Unreleased]: https://github.com/cengebretson/tmux-moshi/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/cengebretson/tmux-moshi/releases/tag/v0.1.0
