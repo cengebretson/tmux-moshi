@@ -1,10 +1,11 @@
 # tmux-moshi
 
 A tmux status-line indicator and one-key/one-click toggle for the
-[Moshi](https://github.com/kyutai-labs/moshi) **agent-hook notification daemon**
-(`moshi-hook`). It shows a 3-state `󰄛` glyph in the status bar, lets you flip the
-daemon off/on from a key or a mouse click, and reports the landed state — without
-leaking the toggle command's output into your active pane.
+[Moshi](https://getmoshi.app/) **agent-hook notification daemon** (`moshi-hook`),
+which pushes agent notifications to the [Moshi iOS terminal app](https://getmoshi.app/).
+It shows a 3-state `󰄛` glyph in the status bar, lets you flip the daemon off/on from
+a key or a mouse click, and reports the landed state — without leaking the toggle
+command's output into your active pane.
 
 > Bespoke by design. It drives a personal `moshi-hook` brew service and a
 > `moshi-notify` shell helper, so it is meant to be vendored into your own tmux
@@ -84,12 +85,26 @@ If you bind those mouse keys yourself, set `@moshi_enable_mouse off` and wire th
 indicator click how you like (it just needs `mouse_status_range` == your
 `@moshi_range_name`).
 
-## Dependencies
+## Requirements
 
-- `tmux` >= 3.0 (uses `range=user` status ranges and `mouse_status_range`).
-- Whatever `@moshi_toggle_command` and `@moshi_pair_check_command` invoke
-  (by default `moshi-notify` and `moshi-hook`). Absent those, the indicator simply
-  reads `off` and the toggle is a harmless no-op.
+This plugin is the tmux-side presentation layer for a personal Moshi setup. It does
+**not** ship the daemon or the toggle helper — those are external and injected through
+options, so the plugin stays shell-agnostic and testable on its own.
+
+- **[Moshi](https://getmoshi.app/)** — the iOS SSH/Mosh terminal for AI coding agents
+  ([App Store](https://apps.apple.com/us/app/moshi-ssh-mosh-terminal/id6757859949)).
+  The app receives the push notifications; the rest of this list is what produces them.
+- **`tmux` >= 3.0** — uses `range=user` status ranges and `mouse_status_range`.
+- **`moshi-hook`** — the agent-hook daemon (a Homebrew service by default). Probed by
+  `@moshi_daemon_match` / `@moshi_pair_check_command` to render the indicator.
+- **`moshi-notify`** — the shell helper that actually flips the daemon (default:
+  `fish -l -c 'moshi-notify toggle'`). It lives in the user's dotfiles, **not** in this
+  repo; the plugin only invokes it via `@moshi_toggle_command`. See
+  [Configuration](#configuration) to retarget it.
+
+Absent `moshi-hook` / `moshi-notify`, the plugin degrades gracefully: the indicator
+reads `off` and the toggle is a harmless no-op. Everything machine-specific is an
+option, so you can point the plugin at whatever your daemon and toggle command are.
 
 ## Development
 
