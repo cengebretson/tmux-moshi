@@ -31,6 +31,10 @@ process / pairing probe, so it needs neither `moshi-hook` nor `moshi-notify`):
 tests/check.sh
 ```
 
+`make test` runs the same suite; `make lint` runs ShellCheck over the scripts and
+plugin entry. CI (`.github/workflows/ci.yml`) runs ShellCheck (pinned to v0.11.0 to
+match local) and the suite on every push and pull request.
+
 ## Versioning and releases
 
 SemVer. The current version lives in `VERSION`. Notes are tracked in a Keep a
