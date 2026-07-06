@@ -42,8 +42,10 @@ else
 	bad "@moshi_status is empty — is tmux-moshi.tmux sourced?"
 fi
 
-# 3. Indicator wired into the status line?
-case "$(opt status-right):$(opt status-left)" in
+# 3. Indicator wired into the status line? Check the current session's scope
+#    too — status-left/right may be set there instead of globally.
+session_status="$(tmux show-option -qv status-right 2>/dev/null):$(tmux show-option -qv status-left 2>/dev/null)"
+case "$(opt status-right):$(opt status-left):${session_status}" in
 	*moshi*) ok "indicator is spliced into the status line" ;;
 	*) warn "no 'moshi' reference in status-left/right — add #{E:@moshi_status}" ;;
 esac

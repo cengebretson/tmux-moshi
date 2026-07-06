@@ -6,6 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- `moshi-doctor` now also checks the current session's `status-left`/
+  `status-right` when verifying the indicator is spliced into the status line,
+  instead of only the global scope.
+
 ## [0.2.0] - 2026-06-27
 
 ### Added
