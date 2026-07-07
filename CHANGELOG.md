@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-07-06
+
 ### Fixed
 
 - `moshi-doctor` now also checks the current session's `status-left`/
@@ -54,6 +56,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   server with a faked daemon process and pairing probe.
 - CI (ShellCheck + tests) and a tag-triggered release workflow.
 
-[Unreleased]: https://github.com/cengebretson/tmux-moshi/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/cengebretson/tmux-moshi/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/cengebretson/tmux-moshi/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/cengebretson/tmux-moshi/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/cengebretson/tmux-moshi/releases/tag/v0.1.0
