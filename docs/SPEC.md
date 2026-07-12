@@ -1,6 +1,8 @@
 # Spec: `tmux-moshi` plugin
 
-Status: **proposal / spec only — no code changes yet.**
+Status: **historical design doc** — implemented as of v0.1.0 and published to
+GitHub/TPM; sections below reflect the original proposal. See `README.md` for
+current behavior and the full option list.
 Author target: in-tree plugin alongside `tmux-attention` and `tmux-fzf-jump`.
 
 ## 1. Goal
@@ -29,6 +31,8 @@ working code into a plugin boundary.
   belongs in a separate `tmux-moshi-remote` plugin, not this one.
 - Publishing to GitHub/TPM as a reusable package. Bespoke deps (`moshi-notify`,
   `moshi-hook`) mean no external audience. Load it locally by path.
+  *(Superseded — see the status banner above: the plugin was ultimately published
+  to GitHub and installable via TPM.)*
 
 ## 3. External dependencies (unchanged, injected via options)
 - `moshi-hook` — brew-managed daemon (`moshi-hook serve`) + `moshi-hook status`.
@@ -130,6 +134,8 @@ Net `tmux.conf` change: delete ~10 lines (seed + 3 binding blocks), add 1 plugin
 - **Load mechanism.** TPM `@plugin` (needs a git repo) vs. local `run '…/tmux-moshi.tmux'`
   by path. Given bespoke deps, **local path load** is simpler and avoids a throwaway
   GitHub repo. (attention/fzf-jump are real `cengebretson/*` repos; this one need not be.)
+  *(Superseded — see the status banner above: it became a real GitHub repo with
+  both TPM and local-path install paths.)*
 - **Naming.** `tmux-moshi` vs `tmux-moshi-notify`. Prefer `tmux-moshi` and reserve room
   for a sibling `tmux-moshi-remote` if phone-autoview is ever extracted.
 

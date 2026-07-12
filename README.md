@@ -32,9 +32,10 @@ command's output into your active pane.
   conveys state) for narrow clients like a phone bar.
 - **Doctor**: `scripts/moshi-doctor` diagnoses tmux version, plugin load,
   status-line wiring, external deps, and live state.
-- **Cheap pairing**: the slow, Keychain-touching pairing probe runs once at load
-  (backgrounded) into the cached `@moshi_paired` option; the per-redraw indicator
-  only does an instant `pgrep`.
+- **Cheap pairing**: the slow, Keychain-touching pairing probe runs at load
+  (backgrounded), again after every toggle, and on demand via the right-click
+  *Refresh pairing* menu item — all into the cached `@moshi_paired` option; the
+  per-redraw indicator only does an instant `pgrep`.
 
 ## Install
 
@@ -72,7 +73,7 @@ Set any of these before the plugin loads:
 | `@moshi_color_paired` | `#a6e3a1` | green — up + paired |
 | `@moshi_daemon_match` | `moshi-hook serve` | `pgrep -f` pattern: "is the daemon up" |
 | `@moshi_toggle_command` | `fish -l -c 'moshi-notify toggle'` | command that flips the daemon |
-| `@moshi_pair_check_command` | `moshi-hook status` | probed once at load; a line matching `^status:\s+paired` sets paired |
+| `@moshi_pair_check_command` | `moshi-hook status` | probed at load, after every toggle, and via the right-click *Refresh pairing*; a line matching `^status:\s+paired` sets paired |
 | `@moshi_toggle_key` | `N` | prefix key to bind; empty string disables the binding |
 | `@moshi_enable_mouse` | `on` | bind left-click toggle, right-click menu, release-consume |
 | `@moshi_range_name` | `moshi` | the `range=user|X` name the click handler matches |

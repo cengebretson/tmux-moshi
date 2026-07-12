@@ -6,6 +6,28 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- `tmux-moshi.tmux` sets its defaults with direct `tmux set-option -goq` calls
+  instead of the show-then-set `set_default_option` helper, halving the tmux
+  round trips at load. `-o` preserves any pre-set value — including an empty
+  `@moshi_toggle_key`, which still disables the binding.
+- `moshi-doctor` version check simplified to `major >= 3` (the `minor >= 0` arm
+  was always true), and a non-numeric major (e.g. tmux master's `next-3.6`) now
+  degrades to a clean warning instead of a shell error.
+- `docs/SPEC.md` is marked as a historical design doc (implemented as of v0.1.0
+  and published to GitHub/TPM), with notes on the superseded out-of-scope
+  passages; README documents current behavior.
+
+### Fixed
+
+- `moshi-doctor` expands a literal leading `~/` in `@moshi_toggle_command` /
+  `@moshi_pair_check_command` before resolving the runner, so configs like
+  `~/bin/my-moshi-toggle` no longer false-warn "not found".
+- README no longer claims the pairing probe runs only once at load — since
+  0.2.0 it also runs after every toggle and via the right-click *Refresh
+  pairing* menu item.
+
 ## [0.2.1] - 2026-07-06
 
 ### Fixed

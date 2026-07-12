@@ -7,26 +7,20 @@
 
 CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-set_default_option() {
-	local option="$1"
-	local value="$2"
-
-	if ! tmux show-option -g "$option" >/dev/null 2>&1; then
-		tmux set-option -gq "$option" "$value"
-	fi
-}
-
 # --- Defaults (override any of these before the plugin loads) ---------------
-set_default_option "@moshi_icon" "󰄛"
-set_default_option "@moshi_color_off" "#6c7086"
-set_default_option "@moshi_color_unpaired" "#f9e2af"
-set_default_option "@moshi_color_paired" "#a6e3a1"
-set_default_option "@moshi_daemon_match" "moshi-hook serve"
-set_default_option "@moshi_toggle_command" "fish -l -c 'moshi-notify toggle'"
-set_default_option "@moshi_pair_check_command" "moshi-hook status"
-set_default_option "@moshi_toggle_key" "N"
-set_default_option "@moshi_enable_mouse" "on"
-set_default_option "@moshi_range_name" "moshi"
+# -o skips options that are already set (even to an empty string, preserving
+# the "empty @moshi_toggle_key disables the binding" contract); -q silences
+# the "already set" complaint -o would otherwise print.
+tmux set-option -goq "@moshi_icon" "󰄛"
+tmux set-option -goq "@moshi_color_off" "#6c7086"
+tmux set-option -goq "@moshi_color_unpaired" "#f9e2af"
+tmux set-option -goq "@moshi_color_paired" "#a6e3a1"
+tmux set-option -goq "@moshi_daemon_match" "moshi-hook serve"
+tmux set-option -goq "@moshi_toggle_command" "fish -l -c 'moshi-notify toggle'"
+tmux set-option -goq "@moshi_pair_check_command" "moshi-hook status"
+tmux set-option -goq "@moshi_toggle_key" "N"
+tmux set-option -goq "@moshi_enable_mouse" "on"
+tmux set-option -goq "@moshi_range_name" "moshi"
 
 range_name="$(tmux show-option -gqv @moshi_range_name)"
 

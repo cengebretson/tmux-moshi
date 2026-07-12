@@ -19,13 +19,20 @@ if ! command -v tmux >/dev/null 2>&1; then
 else
 	ver="$(tmux -V | sed 's/^tmux //')"
 	major="${ver%%.*}"
-	rest="${ver#*.}"
-	minor="${rest%%[!0-9]*}"
-	if [ "${major:-0}" -gt 3 ] || { [ "${major:-0}" -eq 3 ] && [ "${minor:-0}" -ge 0 ]; }; then
-		ok "tmux ${ver} supports clickable status ranges (>= 3.0)"
-	else
-		bad "tmux ${ver} is too old; need >= 3.0 for range=user"
-	fi
+	case "$major" in
+		'' | *[!0-9]*)
+			# Non-numeric major (e.g. tmux master reports "next-3.6"): can't
+			# compare, so warn instead of failing or spewing a shell error.
+			warn "cannot parse tmux version '${ver}'; need >= 3.0 for range=user"
+			;;
+		*)
+			if [ "$major" -ge 3 ]; then
+				ok "tmux ${ver} supports clickable status ranges (>= 3.0)"
+			else
+				bad "tmux ${ver} is too old; need >= 3.0 for range=user"
+			fi
+			;;
+	esac
 fi
 
 # The remaining checks read tmux options, so a server must be running.
@@ -50,9 +57,18 @@ case "$(opt status-right):$(opt status-left):${session_status}" in
 	*) warn "no 'moshi' reference in status-left/right — add #{E:@moshi_status}" ;;
 esac
 
+# `command -v` does not expand a literal leading tilde (as configured in e.g.
+# `set -g @moshi_toggle_command "~/bin/my-moshi-toggle"`), so expand it first.
+expand_tilde() {
+	case "$1" in
+		\~/*) printf '%s\n' "${HOME}/${1#\~/}" ;;
+		*) printf '%s\n' "$1" ;;
+	esac
+}
+
 # 4. Toggle command runner resolvable? (first word of the command line)
 toggle_cmd="$(opt @moshi_toggle_command)"; [ -n "$toggle_cmd" ] || toggle_cmd="fish -l -c 'moshi-notify toggle'"
-toggle_runner="${toggle_cmd%% *}"
+toggle_runner="$(expand_tilde "${toggle_cmd%% *}")"
 if command -v "$toggle_runner" >/dev/null 2>&1; then
 	ok "toggle command runner '$toggle_runner' is available"
 else
@@ -61,7 +77,7 @@ fi
 
 # 5. Pairing-probe command runner resolvable?
 pair_cmd="$(opt @moshi_pair_check_command)"; [ -n "$pair_cmd" ] || pair_cmd="moshi-hook status"
-pair_runner="${pair_cmd%% *}"
+pair_runner="$(expand_tilde "${pair_cmd%% *}")"
 if command -v "$pair_runner" >/dev/null 2>&1; then
 	ok "pairing-probe command '$pair_runner' is available"
 else
