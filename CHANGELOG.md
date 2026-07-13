@@ -6,6 +6,18 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- `moshi-doctor` prints its hard-failure summary to stdout instead of stderr,
+  so it now appears in the right-click menu's `moshi-doctor | less` popup (the
+  exit code still carries the machine-readable signal).
+
+### Changed
+
+- `moshi-status` and `moshi-toggle` compute the state color/label once and
+  emit a single `printf` / `display-message` instead of three near-identical
+  branches; rendered output is unchanged.
+
 ## [0.3.0] - 2026-07-12
 
 ### Changed

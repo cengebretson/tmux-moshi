@@ -38,7 +38,7 @@ fi
 # The remaining checks read tmux options, so a server must be running.
 if ! tmux list-sessions >/dev/null 2>&1; then
 	bad "no tmux server running (start tmux, then re-run)"
-	printf '\n%s hard failure(s).\n' "$fails" >&2
+	printf '\n%s hard failure(s).\n' "$fails"
 	exit 1
 fi
 
@@ -97,7 +97,7 @@ else
 fi
 
 if [ "$fails" -gt 0 ]; then
-	printf '\n%s hard failure(s).\n' "$fails" >&2
+	printf '\n%s hard failure(s).\n' "$fails"
 	exit 1
 fi
 printf '\nall good.\n'

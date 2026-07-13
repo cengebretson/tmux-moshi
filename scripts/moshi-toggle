@@ -26,10 +26,11 @@ script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 "$script_dir/moshi-seed-pairing" >/dev/null 2>&1 || true
 
 if ! pgrep -f "$match" >/dev/null 2>&1; then
-	tmux display-message -d 2500 "#[fg=${off}]${icon} Moshi notifications OFF"
+	color="$off"; suffix="OFF"
 elif [ "$(opt @moshi_paired)" = "yes" ]; then
-	tmux display-message -d 2500 "#[fg=${paired}]${icon} Moshi notifications ON (paired)"
+	color="$paired"; suffix="ON (paired)"
 else
-	tmux display-message -d 2500 "#[fg=${unpaired}]${icon} Moshi notifications ON (unpaired)"
+	color="$unpaired"; suffix="ON (unpaired)"
 fi
+tmux display-message -d 2500 "#[fg=${color}]${icon} Moshi notifications ${suffix}"
 exit 0

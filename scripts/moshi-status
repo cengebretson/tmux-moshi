@@ -24,13 +24,11 @@ case "${1:-}" in
 esac
 
 if ! pgrep -f "$match" >/dev/null 2>&1; then
-	printf '#[fg=%s]%s%s' "$off" "$icon" "$off_label"
-	exit 0
-fi
-
-if [ "$(opt @moshi_paired)" = "yes" ]; then
-	printf '#[fg=%s]%s%s' "$paired" "$icon" "$on_label"
+	color="$off"; label="$off_label"
+elif [ "$(opt @moshi_paired)" = "yes" ]; then
+	color="$paired"; label="$on_label"
 else
-	printf '#[fg=%s]%s%s' "$unpaired" "$icon" "$on_label"
+	color="$unpaired"; label="$on_label"
 fi
+printf '#[fg=%s]%s%s' "$color" "$icon" "$label"
 exit 0

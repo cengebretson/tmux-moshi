@@ -1,4 +1,5 @@
-# tests/check.sh uses `CDPATH= cd -- ...` deliberately to neutralize CDPATH for
-# the duration of the cd. ShellCheck reads this as a possible `var= command`
-# typo (SC1007); it is intentional here, so disable it project-wide.
+# tests/check.sh and scripts/moshi-toggle use `CDPATH= cd -- ...` deliberately
+# to neutralize CDPATH for the duration of the cd. ShellCheck reads this as a
+# possible `var= command` typo (SC1007); it is intentional, so disable it
+# project-wide.
 disable=SC1007
