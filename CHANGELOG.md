@@ -18,6 +18,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   emit a single `printf` / `display-message` instead of three near-identical
   branches; rendered output is unchanged.
 
+### Tests
+
+- `tests/check.sh` now cross-checks each script's literal default fallback
+  (kept for standalone operation, e.g. `moshi-doctor` diagnosing a broken
+  install) against `tmux-moshi.tmux`'s canonical `set-option -goq` default, so
+  the two copies can no longer drift apart silently.
+
 ## [0.3.0] - 2026-07-12
 
 ### Changed

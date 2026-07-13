@@ -53,6 +53,20 @@ assert_not_contains() {
 	esac
 }
 
+# Cross-checks the literal fallback baked into each script (used when the
+# plugin never loaded, e.g. moshi-doctor diagnosing a broken install) against
+# tmux-moshi.tmux's canonical `set-option -goq` default, so the two can't
+# silently drift apart. See CLAUDE.md's "literal fallbacks" design note.
+assert_fallbacks_match() {
+	opt_name="$1"
+	shift
+	canonical="$(grep -m1 "\"@${opt_name}\"" "$ROOT_DIR/tmux-moshi.tmux" | awk -F'"' '{print $(NF - 1)}')"
+	for f in "$@"; do
+		actual="$(grep -m1 "@${opt_name})" "$f" | awk -F'"' '{print $(NF - 1)}')"
+		assert_eq "$canonical" "$actual" "@${opt_name} fallback in $(basename "$f") matches the plugin default"
+	done
+}
+
 tmux_test() { "$REAL_TMUX" -S "$SOCKET_PATH" "$@"; }
 
 # A tmux shim on PATH so the plugin scripts talk to the isolated server.
@@ -74,6 +88,20 @@ for s in moshi-status moshi-toggle moshi-seed-pairing moshi-doctor; do
 	bash -n "$ROOT_DIR/scripts/$s"
 	pass "scripts/$s has valid bash syntax"
 done
+
+# --- default-value drift guard ----------------------------------------------
+# Every script keeps its own literal fallback for these options so it works
+# standalone (e.g. moshi-status called directly by the status line, or
+# moshi-doctor diagnosing an install where the plugin never loaded). Assert
+# each script's fallback still matches tmux-moshi.tmux's default instead of
+# trusting the copies to stay in sync.
+assert_fallbacks_match moshi_icon "$ROOT_DIR/scripts/moshi-status" "$ROOT_DIR/scripts/moshi-toggle"
+assert_fallbacks_match moshi_daemon_match "$ROOT_DIR/scripts/moshi-status" "$ROOT_DIR/scripts/moshi-toggle" "$ROOT_DIR/scripts/moshi-doctor"
+assert_fallbacks_match moshi_color_off "$ROOT_DIR/scripts/moshi-status" "$ROOT_DIR/scripts/moshi-toggle"
+assert_fallbacks_match moshi_color_unpaired "$ROOT_DIR/scripts/moshi-status" "$ROOT_DIR/scripts/moshi-toggle"
+assert_fallbacks_match moshi_color_paired "$ROOT_DIR/scripts/moshi-status" "$ROOT_DIR/scripts/moshi-toggle"
+assert_fallbacks_match moshi_toggle_command "$ROOT_DIR/scripts/moshi-toggle" "$ROOT_DIR/scripts/moshi-doctor"
+assert_fallbacks_match moshi_pair_check_command "$ROOT_DIR/scripts/moshi-doctor" "$ROOT_DIR/scripts/moshi-seed-pairing"
 
 # --- plugin entry: defaults, exported formats, bindings --------------------
 "$ROOT_DIR/tmux-moshi.tmux"
